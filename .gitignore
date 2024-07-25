@@ -1,0 +1,2 @@
+# Will be copied during installation
+nixos/hardware-configuration.nix
