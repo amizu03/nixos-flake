@@ -28,9 +28,9 @@
   boot.kernelModules = [ "kvm-amd" ];
 
   # Load GPU drivers right away
-  boot.initrd.kernelModules = if (settings.gpu_type == "intel")
+  boot.initrd.kernelModules = if (settings.gpu.type == "intel")
       then [ "modesetting" ]
-      else [ settings.gpu_type ];
+      else [ settings.gpu.type ];
 
   # AMD specific power optimisations (part of xanmod kernel patches)
   boot.extraModulePackages = with config.boot.kernelPackages; [ zenpower ];
@@ -74,9 +74,9 @@
   # Configure keymap in X11
   services.xserver = {
     enable = true;
-    videoDrivers = if (settings.gpu_type == "intel")
+    videoDrivers = if (settings.gpu.type == "intel")
       then [ "modesetting" ]
-      else [ settings.gpu_type ];
+      else [ settings.gpu.type ];
     displayManager.startx.enable = true;
     xkb = {
       # Set keyboard layout
@@ -185,17 +185,18 @@
         "amdgpu" = [ amdvlk ];
         "nvidia" = [];
         "intel" = [];
-      }.${settings.gpu_type}
+      }.${settings.gpu.type}
       ++ [ pkgs.rocmPackages.clr.icd ];
 
       extraPackages32 = with pkgs; {
         "amdgpu" =  [ driversi686Linux.amdvlk ];
         "nvidia" = [];
         "intel" = [];
-      }.${settings.gpu_type};
+      }.${settings.gpu.type};
     };
+
     # force proprietary nvidia drivers
-    nvidia = {
+    nvidia = if (settings.gpu.type != "nvidia") then {} else {
       powerManagement = {
         enable = true;
         finegrained = true;

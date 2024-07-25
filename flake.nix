@@ -28,7 +28,17 @@
     boot_mount_path = "/boot";
     grub_device = "";
     is_asus = true; # true, false
-    gpu_type = "amdgpu"; # amdgpu, nvidia, intel
+    gpu = {
+      type = "amdgpu"; # amdgpu, nvidia, intel
+      # PCI bus IDs for GPU management
+      # needed if wanna use NVIDIA prime,
+      # dont need it otherwise 
+      gpu_bus_ids = {
+        "amdgpu" = "PCI:4:0:0";
+        "nvidia" = "PCI:1:0:0";
+        "intel" = "";
+      };
+    };
   };
   pkgs = import nixpkgs {
 	  config.allowUnfree = true;
