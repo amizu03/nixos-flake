@@ -62,7 +62,7 @@
   services.xserver = {
     enable = true;
     # videoDrivers = [ "nvidia" ];
-    # displayManager.startx.enable = true;
+    displayManager.startx.enable = true;
     xkb = {
       # Set keyboard layout
       layout = "us";
@@ -88,7 +88,7 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  environment.pathsToLink = [ "/share/zsh" ];
+  # environment.pathsToLink = [ "/share/zsh" ];
 
   # List packages installed in system profile. To search, run:
   environment.systemPackages = with pkgs; [
@@ -102,7 +102,6 @@
   # System-wide ame mode optimisations, really cool
   # https://wiki.nixos.org/wiki/GameMode
   programs.gamemode.enable = true;
-  programs.rog-control-center.enable = true;
 
   # Steam
   # NOTE: should probably not install this System-wide
@@ -154,8 +153,6 @@
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
 
   # List services that you want to enable:
-  # services.xserver.
-  
   hardware = {
     # force integrated amd gpu to use vulkan drivers
     graphics = {

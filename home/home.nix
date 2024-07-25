@@ -80,6 +80,7 @@
       tty-clock
       btop
       gnome-tweaks
+      # rog-control-center
   ]);
 
   dconf.settings = {
