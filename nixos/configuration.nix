@@ -9,6 +9,12 @@
       ../desktop
     ];
 
+  nix.nixPath = [
+    "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
+    "nixos-config=$HOME/shared/repos/nixos-flake/nixos/configuration.nix"
+    "/nix/var/nix/profiles/per-user/root/channels"
+  ];
+
   # Bootloader.
   # boot.loader.systemd-boot.enable = true;
   # boot.loader.efi.canTouchEfiVariables = true;
