@@ -15,18 +15,13 @@
     "/nix/var/nix/profiles/per-user/root/channels"
   ];
 
-  # Bootloader.
-  # boot.loader.systemd-boot.enable = true;
-  # boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.efi.efiSysMountPoint = "/boot";
-
-  boot.loader.grub = {
-    enable = true;
-    devices = [ "nodev" ];
-    efiInstallAsRemovable = true;
-    efiSupport = true;
-    useOSProber = true;
-  };
+  # Bootloader
+  # https://github.com/librephoenix/nixos-config/blob/5570e49412301ac34cb5e7d2806aae9ec9116195/profiles/homelab/base.nix#L33C1-L37C103
+  boot.loader.systemd-boot.enable = if (systemSettings.bootMode == "uefi") then true else false;
+  boot.loader.efi.canTouchEfiVariables = if (systemSettings.bootMode == "uefi") then true else false;
+  boot.loader.efi.efiSysMountPoint = systemSettings.bootMountPath; # does nothing if running bios rather than uefi
+  boot.loader.grub.enable = if (systemSettings.bootMode == "uefi") then false else true;
+  boot.loader.grub.device = systemSettings.grubDevice; # does nothing if running uefi rather than bios
 
   # Dont load open source nvidia drivers -- broken
   boot.extraModprobeConfig = ''
