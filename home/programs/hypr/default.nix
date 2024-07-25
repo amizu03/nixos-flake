@@ -2,7 +2,7 @@
 
 {
   imports = [ 
-    ./hyprland-environment.nix
+    # ./hyprland-environment.nix
   ];
 
   home.packages = with pkgs; [ 

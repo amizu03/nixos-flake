@@ -71,7 +71,7 @@
       xdg-desktop-portal-gtk
       xdg-desktop-portal-hyprland
       xwayland
-      hyprland
+      # hyprland
       tokyo-night-gtk
       rofi-wayland
       wl-clipboard
