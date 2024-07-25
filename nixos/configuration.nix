@@ -17,10 +17,10 @@
 
   # Bootloader
   # https://github.com/librephoenix/nixos-config/blob/5570e49412301ac34cb5e7d2806aae9ec9116195/profiles/homelab/base.nix#L33C1-L37C103
-  boot.loader.systemd-boot.enable = if (settings.boot_mode == "uefi") then true else false;
-  boot.loader.efi.canTouchEfiVariables = if (settings.boot_mode == "uefi") then true else false;
+  boot.loader.systemd-boot.enable = settings.boot_mode == "uefi";
+  boot.loader.efi.canTouchEfiVariables = settings.boot_mode == "uefi";
   boot.loader.efi.efiSysMountPoint = settings.boot_mount_path; # does nothing if running bios rather than uefi
-  boot.loader.grub.enable = if (settings.boot_mode == "uefi") then false else true;
+  boot.loader.grub.enable = settings.boot_mode != "uefi";
   boot.loader.grub.device = settings.grub_device; # does nothing if running uefi rather than bios
 
   # Dont load open source nvidia drivers -- broken
@@ -142,13 +142,19 @@
   # Asus laptop helper services, can comment out if not using an ASUS laptop
   services = {
     asusd = {
-      enable = true;
+      enable = settings.is_asus;
       enableUserService = true;
     };
   };
   # Allows hotswapping VFIO gpu drivers on ASUS laptops for KVM
-  services.supergfxd.enable = true;
-  systemd.services.supergfxd.path = [ pkgs.pciutils ];
+  services.supergfxd.enable = settings.is_asus;
+  systemd.services.supergfxd.path = if (settings.is_asus) then [ pkgs.pciutils ] else [];
+
+  # power management and performance optmisations for asus ROG laptops
+  programs.rog-control-center = {
+    enable = settings.is_asus;
+    autoStart = true;
+  };
 
   # List services that you want to enable:
   hardware = {

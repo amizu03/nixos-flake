@@ -21,6 +21,7 @@
     boot_mode = "uefi";
     boot_mount_path = "/boot";
     grub_device = "";
+    is_asus = true;
   };
   pkgs = import nixpkgs {
 	  config.allowUnfree = true;
