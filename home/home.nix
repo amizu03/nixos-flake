@@ -31,7 +31,6 @@
       gcc
       cmake
       python3 
-      rustup
       jq
     # # wine
     # # support both 32- and 64-bit applications
@@ -103,5 +102,5 @@
 
   programs.home-manager.enable = true;
 
-  home.stateVersion = "24.05";
+  home.stateVersion = "24.11";
 }

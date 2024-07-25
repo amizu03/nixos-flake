@@ -23,7 +23,6 @@
     grub_device = "";
   };
   pkgs = import nixpkgs {
-    inherit settings;
 	  config.allowUnfree = true;
   };
   lib = nixpkgs.lib;
@@ -31,8 +30,10 @@
   in {
     nixosConfigurations = {
       ses = lib.nixosSystem rec {
-        inherit settings;
-        specialArgs = { inherit hyprland; };
+        specialArgs = {
+          inherit settings;
+          inherit hyprland;
+        };
         modules = [ 
           ./nixos/configuration.nix
           hyprland.nixosModules.default

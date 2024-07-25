@@ -18,7 +18,7 @@
   # Bootloader
   # https://github.com/librephoenix/nixos-config/blob/5570e49412301ac34cb5e7d2806aae9ec9116195/profiles/homelab/base.nix#L33C1-L37C103
   boot.loader.systemd-boot.enable = if (settings.boot_mode == "uefi") then true else false;
-  boot.loader.efi.canTouchEfiVariables = if (systemSettings.boot_mode == "uefi") then true else false;
+  boot.loader.efi.canTouchEfiVariables = if (settings.boot_mode == "uefi") then true else false;
   boot.loader.efi.efiSysMountPoint = settings.boot_mount_path; # does nothing if running bios rather than uefi
   boot.loader.grub.enable = if (settings.boot_mode == "uefi") then false else true;
   boot.loader.grub.device = settings.grub_device; # does nothing if running uefi rather than bios
@@ -36,27 +36,27 @@
   boot.blacklistedKernelModules = [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
   
   # Define your hostname.
-  networking.hostName = "nixos";
+  networking.hostName = settings.hostname;
 
   # Enable networking
   networking.networkmanager.enable = true;
   
   # Set your time zone.
-  time.timeZone = "America/New_York";
+  time.timeZone = settings.timezone;
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.defaultLocale = settings.locale;
 
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
+    LC_ADDRESS = settings.locale;
+    LC_IDENTIFICATION = settings.locale;
+    LC_MEASUREMENT = settings.locale;
+    LC_MONETARY = settings.locale;
+    LC_NAME = settings.locale;
+    LC_NUMERIC = settings.locale;
+    LC_PAPER = settings.locale;
+    LC_TELEPHONE = settings.locale;
+    LC_TIME = settings.locale;
   };
 
   # Configure keymap in X11
@@ -86,10 +86,7 @@
     ];
   };
 
-  # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-
-  # environment.pathsToLink = [ "/share/zsh" ];
 
   # List packages installed in system profile. To search, run:
   environment.systemPackages = with pkgs; [
@@ -191,7 +188,7 @@
   };
 
   # Version info
-  system.stateVersion = "24.05"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 
   # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
