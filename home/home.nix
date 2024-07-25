@@ -63,9 +63,7 @@
       appimage-run
       dunst
       neovim
-      #waybar
-      eww
-      swww
+    # dwm stuff
       wayland-utils
       wl-clipboard
       wlroots
@@ -81,9 +79,7 @@
       pamixer
       tty-clock
       btop
-  ]) ++ (with pkgs.gnome; [ 
-    zenity
-    gnome-tweaks
+      gnome-tweaks
   ]);
 
   dconf.settings = {
@@ -96,8 +92,6 @@
     };
   };
 
-  programs.home-manager.enable = true;
-
   gtk = {
     enable = true;
     theme = {
@@ -105,6 +99,8 @@
       package = pkgs.tokyo-night-gtk;
     };
   };
+
+  programs.home-manager.enable = true;
 
   home.stateVersion = "24.05";
 }

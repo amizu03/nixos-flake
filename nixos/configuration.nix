@@ -33,7 +33,6 @@
   # and I will usually keep vfio drivers loaded,
   # so I can use the GPU completely for the Win10/Win11 testing VMS
   boot.blacklistedKernelModules = [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
-
   
   # Define your hostname.
   networking.hostName = "nixos";
@@ -100,6 +99,11 @@
     pciutils
   ];
 
+  # System-wide ame mode optimisations, really cool
+  # https://wiki.nixos.org/wiki/GameMode
+  programs.gamemode.enable = true;
+  programs.rog-control-center.enable = true;
+
   # Steam
   # NOTE: should probably not install this System-wide
   # instead, install for local user only maybe?
@@ -137,11 +141,7 @@
     # WLR_RENDERER_ALLOW_SOFTWARE = "1";
     NIXOS_OZONE_WL = "1";
   };
-
-  # System-wide ame mode optimisations, really cool
-  # https://wiki.nixos.org/wiki/GameMode
-  programs.gamemode.enable = true;
-
+  
   # Asus laptop helper services, can comment out if not using an ASUS laptop
   services = {
     asusd = {
@@ -149,36 +149,9 @@
       enableUserService = true;
     };
   };
-  programs.rog-control-center.enable = true;
   # Allows hotswapping VFIO gpu drivers on ASUS laptops for KVM
   services.supergfxd.enable = true;
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  programs.zsh = {
-    enable = true;
-    autosuggestions.enable = true;
-    zsh-autoenv.enable = true;
-    enableCompletion = true;
-    syntaxHighlighting.enable = true;
-
-    shellAliases = {
-      icat = "kitten icat";
-      ll = "ls -l";
-      update = "sudo nixos-rebuild switch";
-    };
-    #history = {
-    #  size = 10000;
-    #  path = "${HOME}/zsh/history";
-    #};
-
-  };
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
-    portalPackage = pkgs.xdg-desktop-portal-hyprland;
-  };
 
   # List services that you want to enable:
   # services.xserver.

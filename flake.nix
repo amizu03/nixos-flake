@@ -8,19 +8,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland.url = "github:hyprwm/Hyprland?submodules=1";
   };
 
   outputs = { self, nixpkgs, home-manager, hyprland, ... }:
 
-  let system = "x86_64-linux";
-
-  pkgs = import nixpkgs {
-    inherit system;
-	  config.allowUnfree = true;
-  };
-
-  lib = nixpkgs.lib;
+  let
+    system = "x86_64-linux";
+    pkgs = import nixpkgs {
+      inherit system;
+	      config.allowUnfree = true;
+    };
+    lib = nixpkgs.lib;
 
   in {
     nixosConfigurations = {
@@ -34,7 +33,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.ses = import ./home/home.nix ;
+            home-manager.users.ses = import ./home/home.nix;
             home-manager.extraSpecialArgs = specialArgs;
           }
         ];
