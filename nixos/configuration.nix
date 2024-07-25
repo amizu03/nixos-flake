@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ settings, config, pkgs, lib, ... }:
 
 {
   imports =
@@ -17,11 +17,11 @@
 
   # Bootloader
   # https://github.com/librephoenix/nixos-config/blob/5570e49412301ac34cb5e7d2806aae9ec9116195/profiles/homelab/base.nix#L33C1-L37C103
-  boot.loader.systemd-boot.enable = if (systemSettings.bootMode == "uefi") then true else false;
-  boot.loader.efi.canTouchEfiVariables = if (systemSettings.bootMode == "uefi") then true else false;
-  boot.loader.efi.efiSysMountPoint = systemSettings.bootMountPath; # does nothing if running bios rather than uefi
-  boot.loader.grub.enable = if (systemSettings.bootMode == "uefi") then false else true;
-  boot.loader.grub.device = systemSettings.grubDevice; # does nothing if running uefi rather than bios
+  boot.loader.systemd-boot.enable = if (settings.boot_mode == "uefi") then true else false;
+  boot.loader.efi.canTouchEfiVariables = if (systemSettings.boot_mode == "uefi") then true else false;
+  boot.loader.efi.efiSysMountPoint = settings.boot_mount_path; # does nothing if running bios rather than uefi
+  boot.loader.grub.enable = if (settings.boot_mode == "uefi") then false else true;
+  boot.loader.grub.device = settings.grub_device; # does nothing if running uefi rather than bios
 
   # Dont load open source nvidia drivers -- broken
   boot.extraModprobeConfig = ''

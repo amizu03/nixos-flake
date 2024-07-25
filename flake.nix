@@ -13,18 +13,25 @@
 
   outputs = { self, nixpkgs, home-manager, hyprland, ... }:
 
-  let
+  let settings = {
     system = "x86_64-linux";
-    pkgs = import nixpkgs {
-      inherit system;
-	      config.allowUnfree = true;
-    };
-    lib = nixpkgs.lib;
+    hostname = "nixos";
+    timezone = "America/New_York";
+    locale =  "en_US.UTF-8";
+    boot_mode = "uefi";
+    boot_mount_path = "/boot";
+    grub_device = "";
+  };
+  pkgs = import nixpkgs {
+    inherit settings;
+	  config.allowUnfree = true;
+  };
+  lib = nixpkgs.lib;
 
   in {
     nixosConfigurations = {
       ses = lib.nixosSystem rec {
-        inherit system;
+        inherit settings;
         specialArgs = { inherit hyprland; };
         modules = [ 
           ./nixos/configuration.nix
