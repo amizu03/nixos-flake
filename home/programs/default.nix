@@ -1,5 +1,6 @@
 {
   imports = [
+    ./rust
     ./zsh
     ./hypr
   ];

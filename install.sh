@@ -20,4 +20,4 @@ if [ ! -f ~/wallpapers ]; then
 fi
 
 # Build system
-sudo nixos-rebuild switch --flake .#ses --show-trace
+sudo nixos-rebuild switch --flake . --show-trace --impure

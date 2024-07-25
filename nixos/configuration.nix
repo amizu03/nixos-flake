@@ -17,6 +17,7 @@
 
   # Bootloader
   # https://github.com/librephoenix/nixos-config/blob/5570e49412301ac34cb5e7d2806aae9ec9116195/profiles/homelab/base.nix#L33C1-L37C103
+  
   boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   boot.loader.systemd-boot.enable = settings.boot_mode == "uefi";
   boot.loader.efi.canTouchEfiVariables = settings.boot_mode == "uefi";
@@ -24,17 +25,27 @@
   boot.loader.grub.enable = settings.boot_mode != "uefi";
   boot.loader.grub.device = settings.grub_device; # does nothing if running uefi rather than bios
 
+  boot.kernelModules = [ "kvm-amd" ];
+
+  # Load GPU drivers right away
+  boot.initrd.kernelModules = if (settings.gpu_type == "intel")
+      then [ "modesetting" ]
+      else [ settings.gpu_type ];
+
+  # AMD specific power optimisations (part of xanmod kernel patches)
+  boot.extraModulePackages = with config.boot.kernelPackages; [ zenpower ];
+
   # Dont load open source nvidia drivers -- broken
-  boot.extraModprobeConfig = ''
-    blacklist nouveau
-    options nouveau modeset=0
-  '';
+  # boot.extraModprobeConfig = ''
+  #   blacklist nouveau
+  #   options nouveau modeset=0
+  # '';
 
   # Don't load normal nvidia gpu drivers...
   # Integrated graphics is enough for now,
   # and I will usually keep vfio drivers loaded,
   # so I can use the GPU completely for the Win10/Win11 testing VMS
-  boot.blacklistedKernelModules = [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
+  #boot.blacklistedKernelModules = [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
   
   # Define your hostname.
   networking.hostName = settings.hostname;
@@ -63,7 +74,9 @@
   # Configure keymap in X11
   services.xserver = {
     enable = true;
-    # videoDrivers = [ "nvidia" ];
+    videoDrivers = if (settings.gpu_type == "intel")
+      then [ "modesetting" ]
+      else [ settings.gpu_type ];
     displayManager.startx.enable = true;
     xkb = {
       # Set keyboard layout
@@ -75,12 +88,12 @@
   };
 
   # Enable automatic login for the user.
-  services.getty.autologinUser = "ses";
+  services.getty.autologinUser = settings.user;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.ses = {
+  users.users.${settings.user} = {
     isNormalUser = true;
-    description = "ses";
+    description = settings.user;
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       
@@ -149,7 +162,14 @@
   };
   # Allows hotswapping VFIO gpu drivers on ASUS laptops for KVM
   services.supergfxd.enable = settings.is_asus;
-  systemd.services.supergfxd.path = if (settings.is_asus) then [ pkgs.pciutils ] else [];
+  systemd = {
+    services.supergfxd.path = if (settings.is_asus)
+      then [ pkgs.pciutils ]
+      else [];
+    # tmpfiles.rules = [
+    #   "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
+    # ];
+  };
 
   # power management and performance optmisations for asus ROG laptops
   programs.rog-control-center = {
@@ -162,24 +182,34 @@
     graphics = {
       enable = true;
       extraPackages = with pkgs; {
-        "amd" = [ amdvlk ];
+        "amdgpu" = [ amdvlk ];
         "nvidia" = [];
         "intel" = [];
-      }.${settings.gpu_type};
+      }.${settings.gpu_type}
+      ++ [ pkgs.rocmPackages.clr.icd ];
+
       extraPackages32 = with pkgs; {
-        "amd" =  [ driversi686Linux.amdvlk ];
+        "amdgpu" =  [ driversi686Linux.amdvlk ];
         "nvidia" = [];
         "intel" = [];
       }.${settings.gpu_type};
     };
     # force proprietary nvidia drivers
     nvidia = {
+      powerManagement = {
+        enable = true;
+        finegrained = true;
+      };
       modesetting.enable = true;
-      powerManagement.enable = false;
-      powerManagement.finegrained = false;
       open = false;
       nvidiaSettings = true;
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = config.boot.kernelPackages.nvidiaPackages.latest;
+      prime = {
+        allowExternalGpu = true;
+        offload.enable = true;
+        nvidiaBusId = "PCI:1:0:0";
+        amdgpuBusId = "PCI:4:0:0";
+      };
     };
   };
 

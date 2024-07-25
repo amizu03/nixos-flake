@@ -1,4 +1,4 @@
-{ hyprland, pkgs, ...}: {
+{ settings, hyprland, pkgs, ...}: {
 
   imports = [
     hyprland.homeManagerModules.default
@@ -6,13 +6,11 @@
   ];
 
   home = {
-    username = "ses";
-    homeDirectory = "/home/ses";
+    username = settings.user;
+    homeDirectory = "/home/${settings.user}";
   };
 
-  home.packages = (with pkgs; [
-    # console utils
-    fastfetch
+  home.packages = with pkgs; [
       # utils
       vesktop
       telegram-desktop
@@ -26,7 +24,6 @@
     # Programming-related
       wget
       unzip
-      git
       gdb
       gcc
       cmake
@@ -52,8 +49,6 @@
     ranger
     pavucontrol  
     playerctl
-    # command line utils
-    pciutils
     # notification library
       # misc
       wmctrl
@@ -80,7 +75,7 @@
       btop
       gnome-tweaks
       # rog-control-center
-  ]);
+  ];
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {

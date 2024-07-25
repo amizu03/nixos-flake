@@ -7,32 +7,39 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland, ... }:
+  outputs = { self, nixpkgs, home-manager, hyprland, rust-overlay, ... }:
 
   # NOTE: set these to whatever is relevant for your system!
-  let settings = {
+  let
+  settings = {
     system = "x86_64-linux";
     hostname = "nixos";
+    user = "ses";
     timezone = "America/New_York";
     locale =  "en_US.UTF-8";
     boot_mode = "uefi"; # uefi, bios
     boot_mount_path = "/boot";
     grub_device = "";
     is_asus = true; # true, false
-    gpu_type = "amd"; # amd, nvidia
+    gpu_type = "amdgpu"; # amdgpu, nvidia, intel
   };
   pkgs = import nixpkgs {
 	  config.allowUnfree = true;
+    overlays = [ rust-overlay.overlays.default ];
   };
   lib = nixpkgs.lib;
 
   in {
     nixosConfigurations = {
-      ses = lib.nixosSystem rec {
+      ${settings.hostname} = lib.nixosSystem rec {
+        system = settings.system;
         specialArgs = {
           inherit settings;
           inherit hyprland;
@@ -44,7 +51,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.ses = import ./home/home.nix;
+            home-manager.users.${settings.user} = import ./home/home.nix;
             home-manager.extraSpecialArgs = specialArgs;
           }
         ];
