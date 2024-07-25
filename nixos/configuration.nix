@@ -161,20 +161,16 @@
   hardware = {
     graphics = {
       enable = true;
-      extraPackages = with pkgs; [
-        {
-          "amd" = amdvlk;
-          "nvidia" = {};
-          "intel" = {};
-        }.${settings.gpu_type}
-      ];
-      extraPackages32 = with pkgs; [
-        {
-          "amd" =  driversi686Linux.amdvlk;
-          "nvidia" = {};
-          "intel" = {};
-        }.${settings.gpu_type}
-      ];
+      extraPackages = with pkgs; {
+        "amd" = [ amdvlk ];
+        "nvidia" = [];
+        "intel" = [];
+      }.${settings.gpu_type};
+      extraPackages32 = with pkgs; {
+        "amd" =  [ driversi686Linux.amdvlk ];
+        "nvidia" = [];
+        "intel" = [];
+      }.${settings.gpu_type};
     };
     # force proprietary nvidia drivers
     nvidia = {
