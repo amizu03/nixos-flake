@@ -11,7 +11,7 @@
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
+  boot.extraModulePackages = with pkgs.linuxPackages_xanmod_latest; [ zenpower ];
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/4150bf8f-71b3-4b9f-a188-e35dead61bb4";

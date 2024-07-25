@@ -9,7 +9,8 @@
     shellAliases = {
       icat = "kitten icat";
       ll = "ls -l";
-      update = "sudo nixos-rebuild switch";
+      nix-clean = "nix-store --gc && nix-collect-garbage -d";
+      nix-update = "(cd ~/shared/repos/nixos-flake/; git pull && sudo nixos-rebuild switch --flake .#ses --show-trace)";
     };
   };
 

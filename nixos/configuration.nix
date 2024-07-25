@@ -17,6 +17,7 @@
 
   # Bootloader
   # https://github.com/librephoenix/nixos-config/blob/5570e49412301ac34cb5e7d2806aae9ec9116195/profiles/homelab/base.nix#L33C1-L37C103
+  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   boot.loader.systemd-boot.enable = settings.boot_mode == "uefi";
   boot.loader.efi.canTouchEfiVariables = settings.boot_mode == "uefi";
   boot.loader.efi.efiSysMountPoint = settings.boot_mount_path; # does nothing if running bios rather than uefi
@@ -158,14 +159,17 @@
 
   # List services that you want to enable:
   hardware = {
-    # force integrated amd gpu to use vulkan drivers
     graphics = {
       enable = true;
       extraPackages = with pkgs; [
-        amdvlk
+        {
+          "amd" = amdvlk;
+        }.${settings.gpu_type}
       ];
       extraPackages32 = with pkgs; [
-        driversi686Linux.amdvlk
+        {
+          "amd" =  driversi686Linux.amdvlk;
+        }.${settings.gpu_type}
       ];
     };
     # force proprietary nvidia drivers

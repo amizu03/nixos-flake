@@ -13,15 +13,17 @@
 
   outputs = { self, nixpkgs, home-manager, hyprland, ... }:
 
+  # NOTE: set these to whatever is relevant for your system!
   let settings = {
     system = "x86_64-linux";
     hostname = "nixos";
     timezone = "America/New_York";
     locale =  "en_US.UTF-8";
-    boot_mode = "uefi";
+    boot_mode = "uefi"; # uefi, bios
     boot_mount_path = "/boot";
     grub_device = "";
-    is_asus = true;
+    is_asus = true; # true, false
+    gpu_type = "amd"; # amd, nvidia
   };
   pkgs = import nixpkgs {
 	  config.allowUnfree = true;
