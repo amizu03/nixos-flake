@@ -40,7 +40,7 @@
 
     # Set wallpaper
     exec-once = swww-daemon
-    exec-once = swww img ~/wallpapers/5.jpg
+    exec-once = swww img ~/wallpapers/3.jpg
 
     # Start wayland applets and components
     exec-once = nm-applet
