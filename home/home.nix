@@ -10,7 +10,14 @@
     homeDirectory = "/home/${settings.user}";
   };
 
+  home.sessionVariables = {
+    WLR_NO_HARDWARE_CURSORS = "1";
+    # WLR_RENDERER_ALLOW_SOFTWARE = "1";
+    NIXOS_OZONE_WL = "1";
+  };
+
   home.packages = with pkgs; [
+    virt-manager
       # utils
       vesktop
       telegram-desktop
@@ -78,6 +85,11 @@
   ];
 
   dconf.settings = {
+    "org/virt-manager/virt-manager/connections" = {
+      autoconnect = ["qemu:///system"];
+      uris = ["qemu:///system"];
+      color-scheme = "prefer-dark";
+    };
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
     };

@@ -29,7 +29,7 @@
     grub_device = "";
     is_asus = true; # true, false
     gpu = {
-      type = "amdgpu"; # amdgpu, nvidia, intel
+      type = "nvidia"; # amdgpu, nvidia, intel
       # PCI bus IDs for GPU management
       # needed if wanna use NVIDIA prime,
       # dont need it otherwise 

@@ -11,13 +11,12 @@
 
   nix.nixPath = [
     "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
-    "nixos-config=$HOME/shared/repos/nixos-flake/nixos/configuration.nix"
+    "nixos-config=/home/${settings.user}/shared/repos/nixos-flake/nixos/configuration.nix"
     "/nix/var/nix/profiles/per-user/root/channels"
   ];
 
   # Bootloader
   # https://github.com/librephoenix/nixos-config/blob/5570e49412301ac34cb5e7d2806aae9ec9116195/profiles/homelab/base.nix#L33C1-L37C103
-  
   boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   boot.loader.systemd-boot.enable = settings.boot_mode == "uefi";
   boot.loader.efi.canTouchEfiVariables = settings.boot_mode == "uefi";
@@ -25,7 +24,13 @@
   boot.loader.grub.enable = settings.boot_mode != "uefi";
   boot.loader.grub.device = settings.grub_device; # does nothing if running uefi rather than bios
 
-  boot.kernelModules = [ "kvm-amd" ];
+  # for virtualisation
+  boot.kernelParams = [
+      "amd_iommu=on"
+      "iommu=pt"
+    ];
+
+  boot.kernelModules = [ "kvm-amd" "vfio-pci" ];
 
   # Load GPU drivers right away
   boot.initrd.kernelModules = if (settings.gpu.type == "intel")
@@ -36,16 +41,23 @@
   boot.extraModulePackages = with config.boot.kernelPackages; [ zenpower ];
 
   # Dont load open source nvidia drivers -- broken
-  # boot.extraModprobeConfig = ''
-  #   blacklist nouveau
-  #   options nouveau modeset=0
-  # '';
+  # https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Bluescreen_at_boot_since_Windows_10_1803
+  # Bluescreen at boot since Windows 10 1803
+  # Since Windows 10 1803 there is a problem when you are using "host-passthrough" as cpu model.
+  # The machine cannot boot and is either boot looping or you get a bluescreen.
+  # You can workaround this by:
+  boot.extraModprobeConfig = ''
+    blacklist nouveau
+    options kvm ignore_msrs=1 report_ignored_msrs=0 nouveau=0
+  '';
+  # had before:
+  # options nouveau modeset=0
 
   # Don't load normal nvidia gpu drivers...
   # Integrated graphics is enough for now,
   # and I will usually keep vfio drivers loaded,
   # so I can use the GPU completely for the Win10/Win11 testing VMS
-  #boot.blacklistedKernelModules = [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
+  boot.blacklistedKernelModules = [ "nouveau"  ]; # add "nvidia_modeset" for no power management
   
   # Define your hostname.
   networking.hostName = settings.hostname;
@@ -94,10 +106,44 @@
   users.users.${settings.user} = {
     isNormalUser = true;
     description = settings.user;
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" "kvm" ];
     packages = with pkgs; [
       
     ];
+  };
+
+  virtualisation.libvirtd = {
+    enable = true;
+    package = pkgs.libvirt;
+      onBoot = "ignore";
+      onShutdown = "shutdown";
+      qemu = {
+        runAsRoot = true;
+        package = pkgs.qemu_kvm;
+        swtpm.enable = true;
+        ovmf = {
+          enable = true;
+          packages = [ pkgs.OVMFFull.fd ];
+        };
+        verbatimConfig = ''
+          namespaces = []
+          user = "${settings.user}"
+          group = "kvm"
+          cgroup_device_acl = [
+            "/dev/input/by-id/usb-ASUSTeK_Computer_Inc._N-KEY_Device-if02-event-kbd",
+            "/dev/input/by-id/usb-HP__Inc_HyperX_Pulsefire_Haste_Wireless-event-mouse",
+            "/dev/tpm0",
+            "/dev/null", "/dev/full", "/dev/zero",
+            "/dev/random", "/dev/urandom",
+            "/dev/ptmx", "/dev/kvm", "/dev/kqemu",
+            "/dev/rtc","/dev/hpet", "/dev/sev"
+          ]
+          unix_sock_group = "libvirt"
+          unix_sock_ro_perms = "0777"
+          unix_sock_rw_perms = "0770"
+          unix_sock_admin_perms = "0700"
+        '';
+      };
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -109,7 +155,14 @@
     fastfetch
     libevdev
     pciutils
+    libguestfs
+    win-virtio
+    virtiofsd
+    qemu
   ];
+
+  # cpu power management
+  # powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
 
   # System-wide ame mode optimisations, really cool
   # https://wiki.nixos.org/wiki/GameMode
@@ -146,13 +199,11 @@
     };
   };
 
-  # Some default environment variables
-  environment.sessionVariables = {
-    WLR_NO_HARDWARE_CURSORS = "1";
-    # WLR_RENDERER_ALLOW_SOFTWARE = "1";
-    NIXOS_OZONE_WL = "1";
-  };
-  
+  # Enable xrdp
+  services.xrdp.enable = true; # use remote_logout and remote_unlock
+  services.xrdp.defaultWindowManager = "hyprland";
+  systemd.sockets.pcscd.enable = false;
+
   # Asus laptop helper services, can comment out if not using an ASUS laptop
   services = {
     asusd = {
@@ -163,12 +214,61 @@
   # Allows hotswapping VFIO gpu drivers on ASUS laptops for KVM
   services.supergfxd.enable = settings.is_asus;
   systemd = {
-    services.supergfxd.path = if (settings.is_asus)
+tmpfiles.rules = [
+      "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
+    ];
+    services = {
+  pcscd.enable = false;
+
+    supergfxd.path = if (settings.is_asus)
       then [ pkgs.pciutils ]
       else [];
-    # tmpfiles.rules = [
-    #   "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
-    # ];
+    
+# Add binaries to path so that hooks can use it
+  libvirtd = {
+    path = let
+             env = pkgs.buildEnv {
+               name = "qemu-hook-env";
+               paths = with pkgs; [
+                 bash
+                 libvirt
+                 kmod
+                 systemd
+                 ripgrep
+                 sd
+               ];
+             };
+           in
+           [ env ];
+
+    preStart =
+    ''
+      mkdir -p /var/lib/libvirt/hooks
+      mkdir -p /var/lib/libvirt/hooks/qemu.d/win11/prepare/begin
+      mkdir -p /var/lib/libvirt/hooks/qemu.d/win11/release/end
+      mkdir -p /var/lib/libvirt/vgabios
+      
+      # ln -sf /home/${settings.user}/shared/symlinks/qemu /var/lib/libvirt/hooks/qemu
+      # ln -sf /home/${settings.user}/shared/symlinks/kvm.conf /var/lib/libvirt/hooks/kvm.conf
+      # ln -sf /home/${settings.user}/shared/symlinks/start.sh /var/lib/libvirt/hooks/qemu.d/win11/prepare/begin/start.sh
+      # ln -sf /home/${settings.user}/shared/symlinks/stop.sh /var/lib/libvirt/hooks/qemu.d/win11/release/end/stop.sh
+      # ln -sf /home/${settings.user}/shared/symlinks/patched.rom /var/lib/libvirt/vgabios/patched.rom
+
+      cp -f /home/${settings.user}/shared/symlinks/qemu /var/lib/libvirt/hooks/qemu
+      cp -f /home/${settings.user}/shared/symlinks/kvm.conf /var/lib/libvirt/hooks/kvm.conf
+      cp -f /home/${settings.user}/shared/symlinks/start.sh /var/lib/libvirt/hooks/qemu.d/win11/prepare/begin/start.sh
+      cp -f /home/${settings.user}/shared/symlinks/stop.sh /var/lib/libvirt/hooks/qemu.d/win11/release/end/stop.sh
+      cp -f /home/${settings.user}/shared/symlinks/patched.rom /var/lib/libvirt/vgabios/patched.rom
+      
+      chmod +x /var/lib/libvirt/hooks/qemu
+      chmod +x /var/lib/libvirt/hooks/kvm.conf
+      chmod +x /var/lib/libvirt/hooks/qemu.d/win11/prepare/begin/start.sh
+      chmod +x /var/lib/libvirt/hooks/qemu.d/win11/release/end/stop.sh
+    '';
+  };
+
+    
+  };
   };
 
   # power management and performance optmisations for asus ROG laptops
