@@ -80,6 +80,7 @@
       pamixer
       tty-clock
       btop
+      p7zip
       gnome-tweaks
       # rog-control-center
   ];
@@ -88,7 +89,6 @@
     "org/virt-manager/virt-manager/connections" = {
       autoconnect = ["qemu:///system"];
       uris = ["qemu:///system"];
-      color-scheme = "prefer-dark";
     };
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";

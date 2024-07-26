@@ -148,6 +148,11 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  environment.sessionVariables = rec {
+    WLR_NO_HARDWARE_CURSORS = "1";
+    NIXOS_OZONE_WL = "1";
+  };
+
   # List packages installed in system profile. To search, run:
   environment.systemPackages = with pkgs; [
     git
@@ -159,6 +164,7 @@
     win-virtio
     virtiofsd
     qemu
+    tpm2-tss
   ];
 
   # cpu power management
