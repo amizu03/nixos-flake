@@ -208,8 +208,11 @@
       prime = {
         allowExternalGpu = true;
         offload.enable = true;
-        nvidiaBusId = "PCI:1:0:0";
-        amdgpuBusId = "PCI:4:0:0";
+        # Apply PCI bus IDs from settings.gpu.bus_ids
+        # need at least 2 for prime switching to work
+        nvidiaBusId = settings.gpu.bus_ids.nvidia;
+        amdgpuBusId = settings.gpu.bus_ids.amdgpu;
+        intelBusId = settings.gpu.bus_ids.intel;
       };
     };
   };

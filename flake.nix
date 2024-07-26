@@ -33,10 +33,10 @@
       # PCI bus IDs for GPU management
       # needed if wanna use NVIDIA prime,
       # dont need it otherwise 
-      gpu_bus_ids = {
-        "amdgpu" = "PCI:4:0:0";
-        "nvidia" = "PCI:1:0:0";
-        "intel" = "";
+      bus_ids = {
+        amdgpu = "PCI:4:0:0";
+        nvidia = "PCI:1:0:0";
+        intel = "";
       };
     };
   };
