@@ -12,7 +12,7 @@
 
   home.packages = with pkgs; [
   # Programming-related
-      rust-bin.nightly.latest.default
+      # overlays.rust-bin.nightly.latest.default
       cargo-generate
       wget
       unzip

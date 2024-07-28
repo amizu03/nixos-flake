@@ -30,6 +30,10 @@
       "XDG_SESSION_DESKTOP,Hyprland"
       "XDG_SESSION_TYPE,wayland"
       "USE_WAYLAND_GRIM,1"
+      "QT_QPA_PLATFORMTHEME,qt5ct"
+      "QT_QPA_PLATFORM,wayland"
+      "QT_WAYLAND_DISABLE_WINDOWDECORATION,1"
+      "MOZ_ENABLE_WAYLAND,1"
     ];
     xwayland.enable = true;
     systemd.enable = true;

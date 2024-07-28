@@ -28,8 +28,9 @@
   boot.kernelParams = [
       "amd_iommu=on"
       "iommu=pt"
-      "hugepagesz=1G"
-      "hugepages=16"
+      "default_hugepagesz=2M"
+      "hugepagesz=2M"
+      "hugepages=8600"
     ];
 
   boot.kernelModules = [ "vfio-pci" "vfio" "vfio-iommu-type1" "kvm-amd" ];
