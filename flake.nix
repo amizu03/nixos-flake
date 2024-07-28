@@ -7,10 +7,22 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    aquamarine.url = "github:hyprwm/aquamarine";
     hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+    hyprland.inputs.aquamarine.follows = "aquamarine";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nil = {
+      url = "github:oxalica/nil";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
+    eww = {
+      url = "github:elkowar/eww";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
     };
   };
 
@@ -29,7 +41,7 @@
     grub_device = "";
     is_asus = true; # true, false
     gpu = {
-      type = "nvidia"; # amdgpu, nvidia, intel
+      type = "amdgpu"; # amdgpu, nvidia, intel
       # PCI bus IDs for GPU management
       # needed if wanna use NVIDIA prime,
       # dont need it otherwise 
@@ -69,3 +81,4 @@
     };
   };
 }
+

@@ -28,9 +28,11 @@
   boot.kernelParams = [
       "amd_iommu=on"
       "iommu=pt"
+      "hugepagesz=1G"
+      "hugepages=16"
     ];
 
-  boot.kernelModules = [ "kvm-amd" "vfio-pci" ];
+  boot.kernelModules = [ "vfio-pci" "vfio" "vfio-iommu-type1" "kvm-amd" ];
 
   # Load GPU drivers right away
   boot.initrd.kernelModules = if (settings.gpu.type == "intel")
@@ -48,22 +50,26 @@
   # You can workaround this by:
   boot.extraModprobeConfig = ''
     blacklist nouveau
-    options kvm ignore_msrs=1 report_ignored_msrs=0 nouveau=0
+    options nouveau modeset=0
+    options kvm ignore_msrs=1 report_ignored_msrs=0
+    options vfio-pci ids=10de:2520,10de:228e
   '';
   # had before:
-  # options nouveau modeset=0
 
   # Don't load normal nvidia gpu drivers...
   # Integrated graphics is enough for now,
   # and I will usually keep vfio drivers loaded,
   # so I can use the GPU completely for the Win10/Win11 testing VMS
-  boot.blacklistedKernelModules = [ "nouveau"  ]; # add "nvidia_modeset" for no power management
+  boot.blacklistedKernelModules = [ "nouveau" ]; # add "nvidia_modeset" for no power management
   
   # Define your hostname.
   networking.hostName = settings.hostname;
 
   # Enable networking
   networking.networkmanager.enable = true;
+
+  # Enable physical netwrk interface to use as vm network bridge
+  # networking.bridges.br-lan.interfaces = [ "eno2" ];
   
   # Set your time zone.
   time.timeZone = settings.timezone;
@@ -112,6 +118,7 @@
     ];
   };
 
+  virtualisation.spiceUSBRedirection.enable = true;
   virtualisation.libvirtd = {
     enable = true;
     package = pkgs.libvirt;
@@ -147,11 +154,6 @@
   };
 
   nixpkgs.config.allowUnfree = true;
-
-  environment.sessionVariables = rec {
-    WLR_NO_HARDWARE_CURSORS = "1";
-    NIXOS_OZONE_WL = "1";
-  };
 
   # List packages installed in system profile. To search, run:
   environment.systemPackages = with pkgs; [
@@ -193,7 +195,6 @@
   services.pipewire = {
     enable = true;
     alsa.enable = true;
-    alsa.support32Bit = true;
     pulse.enable = true;
     jack.enable = true;
   };
@@ -220,7 +221,7 @@
   # Allows hotswapping VFIO gpu drivers on ASUS laptops for KVM
   services.supergfxd.enable = settings.is_asus;
   systemd = {
-tmpfiles.rules = [
+  tmpfiles.rules = [
       "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
     ];
     services = {
@@ -282,6 +283,14 @@ tmpfiles.rules = [
     enable = settings.is_asus;
     autoStart = true;
   };
+
+  programs.bash.interactiveShellInit = 
+     ''
+        if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+          #prevents cursor disappear when using Nvidia drivers
+          Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland
+        fi
+      '';
 
   # List services that you want to enable:
   hardware = {

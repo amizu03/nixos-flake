@@ -10,31 +10,17 @@
     homeDirectory = "/home/${settings.user}";
   };
 
-  home.sessionVariables = {
-    WLR_NO_HARDWARE_CURSORS = "1";
-    # WLR_RENDERER_ALLOW_SOFTWARE = "1";
-    NIXOS_OZONE_WL = "1";
-  };
-
   home.packages = with pkgs; [
-    virt-manager
-      # utils
-      vesktop
-      telegram-desktop
-      kitty
-      warp-terminal
-      spotify
-      firefox
-      flameshot
-      authenticator
-      obs-studio
-    # Programming-related
+  # Programming-related
+      rust-bin.nightly.latest.default
+      cargo-generate
       wget
       unzip
       gdb
       gcc
       cmake
       python3 
+      nil # Nix LSP
       jq
     # # wine
     # # support both 32- and 64-bit applications
@@ -61,10 +47,8 @@
       wmctrl
       curl
       wlr-randr
-      appimage-run
+      # dwm stuff
       dunst
-      neovim
-    # dwm stuff
       wayland-utils
       wl-clipboard
       wlroots
@@ -83,6 +67,20 @@
       p7zip
       gnome-tweaks
       # rog-control-center
+      virt-manager
+      # utils
+      vesktop
+      telegram-desktop
+      kitty
+      spotify
+      firefox
+      flameshot
+      authenticator
+      obs-studio
+      ghidra-bin
+      # p
+      appimage-run
+      neovim
   ];
 
   dconf.settings = {
@@ -107,7 +105,15 @@
     };
   };
 
+  # Make QT applications look similar to GTK
+  qt = {
+    enable = true;
+    platformTheme.name = "gtk3";
+    style.name = "gtk3";
+  };
+  
   programs.home-manager.enable = true;
-
+  
+  # Autostart hyprland on login
   home.stateVersion = "24.11";
 }

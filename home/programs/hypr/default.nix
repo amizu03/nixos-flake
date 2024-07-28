@@ -13,6 +13,7 @@
   #test later systemd.user.targets.hyprland-session.Unit.Wants = [ "xdg-desktop-autostart.target" ];
   wayland.windowManager.hyprland = {
     enable = true;
+    
     settings.env = [
       "EDITOR,kitty nvim"
       "BROWSER,firefox"
@@ -28,6 +29,7 @@
       "XDG_CURRENT_DESKTOP,Hyprland"
       "XDG_SESSION_DESKTOP,Hyprland"
       "XDG_SESSION_TYPE,wayland"
+      "USE_WAYLAND_GRIM,1"
     ];
     xwayland.enable = true;
     systemd.enable = true;
@@ -50,6 +52,9 @@
     exec-once = pipewire
     exec-once = pipewire-pulse
     exec-once = wireplumber
+    exec-once = vesktop 
+    exec-once = telegram-desktop 
+    exec-once = spotify
 
     exec-once = blueman-applet
     exec-once = blueman-tray
@@ -64,8 +69,8 @@
 
     exec-once = rog-control-center
 
-    env = XCURSOR_SIZE,24
-    env = HYPRCURSOR_SIZE,24
+    # env = XCURSOR_SIZE,24
+    # env = HYPRCURSOR_SIZE,24
 
     # https://wiki.hyprland.org/Configuring/Variables/#general
 general { 
@@ -174,6 +179,13 @@ gestures {
     workspace_swipe = false
 }
 
+# Fix mouse cursor on new hyprland version
+cursor {
+  no_warps = true
+    no_hardware_cursors = true
+    allow_dumb_copy = true
+  }
+
 # Example per-device config
 # See https://wiki.hyprland.org/Configuring/Keywords/#per-device-input-configs for more
 device {
@@ -222,6 +234,9 @@ bind = $mainMod SHIFT, 3, movetoworkspace, 3
 bind = $mainMod SHIFT, 4, movetoworkspace, 4
 bind = $mainMod SHIFT, 5, movetoworkspace, 5
 bind = $mainMod SHIFT, 6, movetoworkspace, 6
+
+# Screenshots with flameshot
+bind = , Print, exec, flameshot gui
 
 # run menu
 #rbind = $mainMod, R, exec, rofi -show drun -show-icons 

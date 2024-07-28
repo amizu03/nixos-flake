@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # Remove old gtk themes to replace with ours
-# if [ -e "$HOME/.config/gtk-3.0" ]; then
-#   rm -f "$HOME/.config/gtk-3.0/settings.ini"
-# fi
-#
-# if [ -e "$HOME/.config/gtk-4.0" ]; then
-#   rm -f "$HOME/.config/gtk-4.0/settings.ini"
-# fi
+if [ -e "$HOME/.config/gtk-3.0" ]; then
+  rm -f "$HOME/.config/gtk-3.0/settings.ini"
+fi
+
+if [ -e "$HOME/.config/gtk-4.0" ]; then
+  rm -f "$HOME/.config/gtk-4.0/settings.ini"
+fi
 
 # Set cwd
 DIR=$(pwd)
@@ -20,4 +20,4 @@ if [ ! -f ~/wallpapers ]; then
 fi
 
 # Build system
-sudo nixos-rebuild switch --flake . --show-trace --impure
+sudo nixos-rebuild switch --flake . --show-trace
