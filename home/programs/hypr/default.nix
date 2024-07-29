@@ -6,10 +6,11 @@
   ];
 
   home.packages = with pkgs; [ 
+    catppuccin-cursors.frappeDark
     eww
     swww
   ];
-  
+
   #test later systemd.user.targets.hyprland-session.Unit.Wants = [ "xdg-desktop-autostart.target" ];
   wayland.windowManager.hyprland = {
     enable = true;
@@ -73,8 +74,8 @@
 
     exec-once = rog-control-center
 
-    # env = XCURSOR_SIZE,24
-    # env = HYPRCURSOR_SIZE,24
+    env = XCURSOR_SIZE,24
+    env = HYPRCURSOR_SIZE,24
 
     # https://wiki.hyprland.org/Configuring/Variables/#general
 general { 

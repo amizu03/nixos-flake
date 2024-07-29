@@ -16,15 +16,13 @@
     jitRender = true;
   };
 
-  spice = {
-    enable = true;
-    audio = true;
-  };
+  spice.enable = false;
 
-  input = {
-    rawMouse = true;
-    # escapeKey = 62;
-  };
+  input.rawMouse = true;
+  # input = {
+  #   rawMouse = true;
+  #   # escapeKey = 62;
+  # };
   };
 };
 }

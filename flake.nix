@@ -24,9 +24,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.rust-overlay.follows = "rust-overlay";
     };
+    nix-gaming.url = "github:fufexan/nix-gaming";
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland, rust-overlay, ... }:
+  outputs = { self, nixpkgs, home-manager, hyprland, rust-overlay, nil, eww, nix-gaming, ... }@inputs:
 
   # NOTE: set these to whatever is relevant for your system!
   let

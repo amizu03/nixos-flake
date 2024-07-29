@@ -185,6 +185,7 @@
     enable = true;
     remotePlay.openFirewall = true;
     dedicatedServer.openFirewall = true;
+    # platformOptimizations.enable = true;
   };
 
   # Sound setup
